@@ -1,0 +1,107 @@
+===========|||
+Math blocks
+===========|||
+
+$$
+E = m c^2
+$$
+
+---|||
+
+(document
+  (section
+    (math_block
+      (math_block_delimiter)
+      (block_continuation)
+      (code_fence_content
+        (block_continuation))
+      (math_block_delimiter))))
+
+===========================|||
+Math block with MDX-like tags
+===========================|||
+
+$$
+#diagram(
+	spacing: 8pt,
+	cell-size: (33mm, 14mm),
+
+    blob((1, 3), $2$, tint: orange, name: <rust2>),
+)
+$$
+
+---|||
+
+(document
+  (section
+    (math_block
+      (math_block_delimiter)
+      (block_continuation)
+      (code_fence_content
+        (block_continuation)
+        (block_continuation)
+        (block_continuation)
+        (block_continuation)
+        (block_continuation)
+        (block_continuation))
+      (math_block_delimiter))))
+
+===========================|||
+Math block with multiple lines
+===========================|||
+
+$$
+\begin{align}
+a &= b + c \\
+  &= d + e
+\end{align}
+$$
+
+---|||
+
+(document
+  (section
+    (math_block
+      (math_block_delimiter)
+      (block_continuation)
+      (code_fence_content
+        (block_continuation)
+        (block_continuation)
+        (block_continuation)
+        (block_continuation))
+      (math_block_delimiter))))
+
+============================|||
+Math block with special characters
+============================|||
+
+$$
+f(x) = \int_{-\infty}^{\infty} e^{-x^2} dx
+$$
+
+---|||
+
+(document
+  (section
+    (math_block
+      (math_block_delimiter)
+      (block_continuation)
+      (code_fence_content
+        (block_continuation))
+      (math_block_delimiter))))
+
+====================|||
+Empty math block
+====================|||
+
+$$
+$$
+
+---|||
+
+(document
+  (section
+    (math_block
+      (math_block_delimiter)
+      (block_continuation)
+      (math_block_delimiter))))

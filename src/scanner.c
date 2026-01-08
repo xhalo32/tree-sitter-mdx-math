@@ -648,6 +648,7 @@ static bool match(Scanner *s, TSLexer *lexer, Block block) {
             }
             break;
         case FENCED_CODE_BLOCK:
+        case MATH_BLOCK:
         case ANONYMOUS:
             return true;
     }
@@ -938,7 +939,8 @@ static bool parse_math_block(Scanner *s, TSLexer *lexer, const bool *valid_symbo
         s->open_blocks.items[s->open_blocks.size - 1] == MATH_BLOCK) {
         if (scan_math_delimiter(lexer)) {
             lexer->result_symbol = MATH_BLOCK_END;
-            if (!s->simulate) pop_block(s);
+            // Don't pop the block here - let the normal block closing logic handle it
+            // similar to how fenced_code_block works
             s->indentation = 0;
             return true;
         }
