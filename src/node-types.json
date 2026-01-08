@@ -829,6 +829,10 @@
           "named": true
         },
         {
+          "type": "math_block",
+          "named": true
+        },
+        {
           "type": "paragraph",
           "named": true
         },
@@ -2475,6 +2479,10 @@
           "named": true
         },
         {
+          "type": "math_block",
+          "named": true
+        },
+        {
           "type": "paragraph",
           "named": true
         },
@@ -2544,6 +2552,29 @@
         },
         {
           "type": "code_span",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "math_block",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "block_continuation",
+          "named": true
+        },
+        {
+          "type": "code_fence_content",
+          "named": true
+        },
+        {
+          "type": "math_block_delimiter",
           "named": true
         }
       ]
@@ -3179,6 +3210,10 @@
         },
         {
           "type": "list",
+          "named": true
+        },
+        {
+          "type": "math_block",
           "named": true
         },
         {
@@ -4206,6 +4241,10 @@
   {
     "type": "let",
     "named": false
+  },
+  {
+    "type": "math_block_delimiter",
+    "named": true
   },
   {
     "type": "meta",

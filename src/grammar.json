@@ -1379,6 +1379,10 @@
         },
         {
           "type": "SYMBOL",
+          "name": "math_block"
+        },
+        {
+          "type": "SYMBOL",
           "name": "_blank_line"
         },
         {
@@ -2956,6 +2960,74 @@
           ]
         }
       ]
+    },
+    "math_block": {
+      "type": "PREC_RIGHT",
+      "value": 0,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "ALIAS",
+            "content": {
+              "type": "SYMBOL",
+              "name": "_math_block_start"
+            },
+            "named": true,
+            "value": "math_block_delimiter"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "_newline"
+          },
+          {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "code_fence_content"
+              },
+              {
+                "type": "BLANK"
+              }
+            ]
+          },
+          {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SEQ",
+                "members": [
+                  {
+                    "type": "ALIAS",
+                    "content": {
+                      "type": "SYMBOL",
+                      "name": "_math_block_end"
+                    },
+                    "named": true,
+                    "value": "math_block_delimiter"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "_close_block"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "_newline"
+                  }
+                ]
+              },
+              {
+                "type": "BLANK"
+              }
+            ]
+          },
+          {
+            "type": "SYMBOL",
+            "name": "_block_close"
+          }
+        ]
+      }
     },
     "block_quote": {
       "type": "SEQ",
@@ -11479,6 +11551,14 @@
     {
       "type": "SYMBOL",
       "name": "_blank_line_start"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_math_block_start"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_math_block_end"
     },
     {
       "type": "SYMBOL",

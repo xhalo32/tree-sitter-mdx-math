@@ -46,6 +46,8 @@ enum TokenType {
     FENCED_CODE_BLOCK_START_BACKTICK,
     FENCED_CODE_BLOCK_START_TILDE,
     BLANK_LINE_START,
+    MATH_BLOCK_START,
+    MATH_BLOCK_END,
     FENCED_CODE_BLOCK_END_BACKTICK,
     FENCED_CODE_BLOCK_END_TILDE,
     CLOSE_BLOCK,
@@ -89,6 +91,7 @@ typedef enum {
     LIST_ITEM_14_INDENTATION,
     LIST_ITEM_MAX_INDENTATION,
     FENCED_CODE_BLOCK,
+    MATH_BLOCK,
     ANONYMOUS,
 } Block;
 
@@ -96,6 +99,20 @@ typedef enum {
 static bool is_punctuation(char chr) {
     return (chr >= '!' && chr <= '/') || (chr >= ':' && chr <= '@') ||
            (chr >= '[' && chr <= '`') || (chr >= '{' && chr <= '~');
+}
+
+static bool scan_math_delimiter(TSLexer *lexer) {
+    // Called at the beginning of a line (or after indentation handling),
+    // attempt to match "$$" and require that it is followed only by spaces/tabs
+    // until newline/EOF.
+    if (lexer->lookahead != '$') return false;
+    lexer->advance(lexer, false);
+    if (lexer->lookahead != '$') return false;
+    lexer->advance(lexer, false);
+    while (lexer->lookahead == ' ' || lexer->lookahead == '\t') {
+        lexer->advance(lexer, false);
+    }
+    return (lexer->lookahead == '\n' || lexer->lookahead == '\r' || lexer->lookahead == 0);
 }
 
 // Returns the indentation level which lines of a list item should have at
@@ -908,6 +925,39 @@ static bool parse_setext_underline(Scanner *s, TSLexer *lexer,
     return false;
 }
 
+static bool parse_math_block(Scanner *s, TSLexer *lexer, const bool *valid_symbols) {
+    // Only recognized at BOL after indentation parsing in scan().
+    // Open/close conditions:
+    // - indentation must be <= 3
+    // - delimiter line is "$$" with only optional trailing spaces/tabs
+    if (s->indentation > 3) return false;
+
+    // If we might be able to close, try that first.
+    if (valid_symbols[MATH_BLOCK_END] &&
+        s->open_blocks.size > 0 &&
+        s->open_blocks.items[s->open_blocks.size - 1] == MATH_BLOCK) {
+        if (scan_math_delimiter(lexer)) {
+            lexer->result_symbol = MATH_BLOCK_END;
+            if (!s->simulate) pop_block(s);
+            s->indentation = 0;
+            return true;
+        }
+        return false;
+    }
+
+    // Otherwise try opening.
+    if (valid_symbols[MATH_BLOCK_START]) {
+        if (scan_math_delimiter(lexer)) {
+            lexer->result_symbol = MATH_BLOCK_START;
+            if (!s->simulate) push_block(s, MATH_BLOCK);
+            s->indentation = 0;
+            return true;
+        }
+    }
+
+    return false;
+}
+
 static bool parse_plus(Scanner *s, TSLexer *lexer, const bool *valid_symbols) {
     if (s->indentation <= 3 &&
         (valid_symbols[LIST_MARKER_PLUS] ||
@@ -1436,6 +1486,12 @@ static bool scan(Scanner *s, TSLexer *lexer, const bool *valid_symbols) {
         // Decide which tokens to consider based on the first non-whitespace
         // character
         switch (lexer->lookahead) {
+            case '$':
+                // A dollar sign could mark the beginning or ending of a math block ($$ ... $$).
+                if (parse_math_block(s, lexer, valid_symbols)) {
+                    return true;
+                }
+                break;
             case '\r':
             case '\n':
                 if (valid_symbols[BLANK_LINE_START]) {

@@ -140,6 +140,8 @@ module.exports = grammar({
     $._fenced_code_block_start_backtick,
     $._fenced_code_block_start_tilde,
     $._blank_line_start, // Does not contain the newline characters. Blank lines do not need a `$._block_close`
+    $._math_block_start,
+    $._math_block_end,
 
     // Special tokens for block structure
 
@@ -433,6 +435,7 @@ module.exports = grammar({
         $.thematic_break,
         $.list,
         $.fenced_code_block,
+        EXTENSION_LATEX ? $.math_block : choice(),
         $._blank_line,
         $.link_reference_definition,
         EXTENSION_PIPE_TABLE ? $.pipe_table : choice(),
@@ -776,6 +779,35 @@ module.exports = grammar({
     //
     // https://github.github.com/gfm/#blank-lines
     _blank_line: ($) => seq($._blank_line_start, choice($._newline, $._eof)),
+
+    // A primitive LaTeX/Math block delimited by $$ ... $$.
+    //
+    // Design goals:
+    // - Do not error on content inside.
+    // - Treat content as opaque lines until a closing $$ is encountered.
+    // - Only block math (not inline $...$).
+    //
+    // This is intentionally "primitive": it relies on the external scanner to:
+    // - detect $$ at BOL and emit _math_block_start/_math_block_end
+    // - push/pop a MATH_BLOCK on the block stack
+    //
+    // NOTE: We re-use code_fence_content (raw lines) as the payload.
+    math_block: ($) =>
+      prec.right(
+        seq(
+          alias($._math_block_start, $.math_block_delimiter),
+          $._newline,
+          optional($.code_fence_content),
+          optional(
+            seq(
+              alias($._math_block_end, $.math_block_delimiter),
+              $._close_block,
+              $._newline,
+            ),
+          ),
+          $._block_close,
+        ),
+      ),
 
     // CONTAINER BLOCKS
 
